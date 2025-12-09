@@ -39,13 +39,31 @@ if not os.path.exists(MODEL_PATH):
         st.success("Model downloaded!")
 
 # ----------------------------
-# 3. Class Names
+# 3. Class Names & Bengali Mapping
 # ----------------------------
 class_names = [
     "Bean", "Bitter_Gourd", "Bottle_Gourd", "Brinjal", "Broccoli",
     "Cabbage", "Capsicum", "Carrot", "Cauliflower", "Cucumber",
     "Papaya", "Potato", "Pumpkin", "Radish", "Tomato"
 ]
+
+bengali_names = {
+    "Bean": "শিম",
+    "Bitter_Gourd": "করলা",
+    "Bottle_Gourd": "লাউ",
+    "Brinjal": "বেগুন",
+    "Broccoli": "ব্রকলি",
+    "Cabbage": "বাঁধাকপি",
+    "Capsicum": "শিমলমরিচ",
+    "Carrot": "গাজর",
+    "Cauliflower": "ফুলকপি",
+    "Cucumber": "শসা",
+    "Papaya": "পেপে",
+    "Potato": "আলু",
+    "Pumpkin": "কুমড়া",
+    "Radish": "মূলা",
+    "Tomato": "টমেটো"
+}
 
 # ----------------------------
 # 4. Load Full Model (weights_only=False)
@@ -86,12 +104,13 @@ if uploaded_files:
             output = model(img_t)
             predicted_idx = output.argmax(1).item()
             predicted_class = class_names[predicted_idx]
+            bengali_name = bengali_names.get(predicted_class, "")
             probabilities = torch.softmax(output, dim=1)[0]
 
         # Prediction box
         st.markdown(f"""
             <div style='padding:10px; border-radius:10px; background-color:#E6F4EA'>
-                <h3 style='color:#2E7D32;'>Predicted Class: {predicted_class}</h3>
+                <h3 style='color:#2E7D32;'>Predicted Class: {predicted_class} ({bengali_name})</h3>
             </div>
         """, unsafe_allow_html=True)
 
@@ -99,10 +118,12 @@ if uploaded_files:
         top3_prob, top3_idx = torch.topk(probabilities, 3)
         st.write("Top 3 predictions:")
         for i, idx in enumerate(top3_idx):
-            st.write(f"{i+1}. {class_names[idx]} — {top3_prob[i]*100:.2f}%")
+            class_eng = class_names[idx]
+            class_bn = bengali_names.get(class_eng, "")
+            st.write(f"{i+1}. {class_eng} ({class_bn}) — {top3_prob[i]*100:.2f}%")
 
 # ----------------------------
 # 7. Footer
 # ----------------------------
 st.markdown("---")
-st.markdown("Developed by Md. Abdullah Al Maruf | Powered by PyTorch & Streamlit")
+st.markdown("Developed by Md Abdullah Al Maruf | Powered by PyTorch & Streamlit")
