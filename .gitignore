@@ -1,7 +1,0 @@
-__pycache__/
-*.pyc
-model.pth
-*.pth
-.env
-.DS_Store
-.vscode/
