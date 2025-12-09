@@ -8,7 +8,9 @@ import model_download
 model_download.download_model()
 
 # Load model
-model = torch.load("best_model.pth", map_location=torch.device('cpu'))
+model = torch.load("best_vegetable_model.pth", map_location=torch.device('cpu'))
+if model is None:
+    st.error("Model failed to load. File may be corrupted.")
 model.eval()
 
 transform = transforms.Compose([
