@@ -1,6 +1,5 @@
 import streamlit as st
 import torch
-import torchvision.models.resnet
 from torchvision import transforms
 from PIL import Image
 import os
@@ -49,11 +48,10 @@ class_names = [
 ]
 
 # ----------------------------
-# 4. Load Full Model Safely (PyTorch 2.6+)
+# 4. Load Full Model (weights_only=False)
 # ----------------------------
 try:
-    with torch.serialization.safe_globals([torchvision.models.resnet.ResNet]):
-        model = torch.load(MODEL_PATH, map_location="cpu", weights_only=True)
+    model = torch.load(MODEL_PATH, map_location="cpu", weights_only=False)
     model.eval()
     st.success("Model loaded successfully!")
 except Exception as e:
