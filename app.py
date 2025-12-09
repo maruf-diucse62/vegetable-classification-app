@@ -22,32 +22,37 @@ if not os.path.exists(MODEL_PATH):
 class VegetableModel(nn.Module):
     def __init__(self):
         super(VegetableModel, self).__init__()
-        # Replace with your actual architecture
-        self.fc = nn.Linear(224*224*3, 10)  # example for 10 classes
+        # Replace this with your actual architecture
+        self.fc = nn.Linear(224*224*3, 10)  # Example: 10 classes
 
     def forward(self, x):
         x = x.view(x.size(0), -1)
         return self.fc(x)
 
 # ----------------------------
-# 3. Load the model
+# 3. Load the checkpoint
 # ----------------------------
 model = VegetableModel()
+class_names = [str(i) for i in range(10)]  # Default class names
 
 try:
-    state_dict = torch.load(MODEL_PATH, map_location=torch.device('cpu'))
-    if isinstance(state_dict, dict):
-        model.load_state_dict(state_dict)
+    checkpoint = torch.load(MODEL_PATH, map_location=torch.device('cpu'))
+    
+    if "model_state_dict" in checkpoint:
+        model.load_state_dict(checkpoint["model_state_dict"])
+        class_names = checkpoint.get("class_names", class_names)
+        st.info(f"Checkpoint loaded. Validation accuracy: {checkpoint.get('val_acc', 'N/A')}")
     else:
-        # If torch.load returns a full model (not state_dict)
-        model = state_dict
+        # If the .pth is a full model
+        model = checkpoint
+    
     model.eval()
     st.success("Model loaded successfully!")
 except Exception as e:
     st.error(f"Failed to load model: {e}")
 
 # ----------------------------
-# 4. Define image transform
+# 4. Image transform
 # ----------------------------
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -70,6 +75,7 @@ if uploaded_file:
 
     with torch.no_grad():
         output = model(img_t)
-        predicted = output.argmax(1).item()
+        predicted_idx = output.argmax(1).item()
+        predicted_class = class_names[predicted_idx]
 
-    st.success(f"Predicted Class: **{predicted}**")
+    st.success(f"Predicted Class: **{predicted_class}**")
